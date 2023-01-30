@@ -1,0 +1,80 @@
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR PRIMARY KEY,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  email VARCHAR(40),
+  phone VARCHAR(25),
+  password VARCHAR(45),
+  role VARCHAR(15)
+);
+
+INSERT INTO public.users (id, created_at, email, password, phone, role, updated_at) VALUES ('bfa0aa90-3568-4a56-8bec-dc78096ad5f2', '2023-01-30 02:54:10.634162', 'ann271101@gmail.com', '123456', '+380686459534', 'ADMIN', '2023-01-30 02:54:10.634162');
+INSERT INTO public.users (id, created_at, email, password, phone, role, updated_at) VALUES ('a607a1e7-9bb0-41c7-a67f-b1bc487347ac', '2023-01-30 02:54:10.690736', 'mishadiak061060@gmail.com', '1234', '+380973744270', 'TEACHER', '2023-01-30 02:54:10.690736');
+INSERT INTO public.users (id, created_at, email, password, phone, role, updated_at) VALUES ('9699c1a7-e8af-451c-9e5e-e4f828b34f63', '2023-01-30 02:54:10.691737', 'denys.kondratiuk@gmail.com', '1234', '+380675507922', 'ADMIN', '2023-01-30 02:54:10.691737');
+INSERT INTO public.users (id, created_at, email, password, phone, role, updated_at) VALUES ('b456c3d3-1e6c-4b52-bf5f-f847222321b2', '2023-01-30 02:54:10.693737', 'olga.varuk43@gmail.com', '233', '+380975676543', 'STUDENT', '2023-01-30 02:54:10.693737');
+
+
+CREATE TABLE IF NOT EXISTS applications (
+  client_id VARCHAR PRIMARY KEY,
+  client_secret VARCHAR(100),
+  name VARCHAR(50),
+  homepage_url VARCHAR(300),
+  description VARCHAR(240),
+  redirect_uri TEXT NOT NULL,
+  scope VARCHAR(200),
+  created_at TIMESTAMP
+);
+
+INSERT INTO applications (client_id, client_secret, name, homepage_url, redirect_uri)
+VALUES 
+	('DA62ZY4WK6b2729AQK2W6yKFfOCJtKmn', '0TYf10quVb-OdGxN9fKuhfzEe6aLL_BTW_vmcv0EoefeMf5j3D9NJSAF1zKb4OCd', 'The-world`s-best-app', 'auth-tenant-domain.eu.auth0.com', 'http://localhost:3000/');
+
+CREATE TABLE assigned_applications_to_users (
+  id VARCHAR PRIMARY KEY DEFAULT uuid_generate_v4(),
+  client_id VARCHAR NOT NULL REFERENCES applications(client_id) ON DELETE CASCADE,
+  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO assigned_applications_to_users (client_id, user_id)
+VALUES
+	('DA62ZY4WK6b2729AQK2W6yKFfOCJtKmn', '457e5af9-03f3-417d-974f-806a3c1d0cfc');
+
+CREATE TABLE access_tokens (
+	access_token VARCHAR(60) PRIMARY KEY,
+  token_type VARCHAR(10) NOT NULL,
+  refresh_token VARCHAR(60),
+  id_token VARCHAR(300),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  expires_in INTEGER NOT NULL,
+  scope VARCHAR(200),
+  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE sessions (
+  id VARCHAR(36) PRIMARY KEY,
+  code VARCHAR(50) NOT NULL,
+  state VARCHAR(50) NOT NULL,
+  code_challenge VARCHAR(40),
+  code_challenge_method VARCHAR(10),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  client_id VARCHAR NOT NULL REFERENCES applications(client_id) ON DELETE CASCADE
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
