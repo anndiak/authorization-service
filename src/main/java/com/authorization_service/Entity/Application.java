@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "applications")
@@ -15,9 +14,8 @@ import java.util.UUID;
 public class Application {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @Column(name = "client_id", updatable = false)
-    private UUID client_id;
+    @Column(length = 36, updatable = false)
+    private String client_id;
 
     @Column(name = "client_secret", nullable = false)
     private String client_secret;
@@ -39,6 +37,14 @@ public class Application {
 
     @Column(name = "created_at")
     private LocalDateTime created_at = LocalDateTime.now();
+
+//    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+//    @JoinTable(name="assigned_applications_to_users",
+//            joinColumns={
+//                    @JoinColumn(name="client_id", referencedColumnName="client_id")},
+//            inverseJoinColumns={
+//                    @JoinColumn(name="user_id", referencedColumnName="id")})
+//    private User user;
 
     @Override
     public String toString() {

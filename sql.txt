@@ -30,10 +30,10 @@ VALUES
 	('DA62ZY4WK6b2729AQK2W6yKFfOCJtKmn', '0TYf10quVb-OdGxN9fKuhfzEe6aLL_BTW_vmcv0EoefeMf5j3D9NJSAF1zKb4OCd', 'The-world`s-best-app', 'auth-tenant-domain.eu.auth0.com', 'http://localhost:3000/');
 
 CREATE TABLE assigned_applications_to_users (
-  id VARCHAR PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id VARCHAR PRIMARY KEY,
   client_id VARCHAR NOT NULL REFERENCES applications(client_id) ON DELETE CASCADE,
   user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP
 );
 
 INSERT INTO assigned_applications_to_users (client_id, user_id)
@@ -41,11 +41,11 @@ VALUES
 	('DA62ZY4WK6b2729AQK2W6yKFfOCJtKmn', '457e5af9-03f3-417d-974f-806a3c1d0cfc');
 
 CREATE TABLE access_tokens (
-	access_token VARCHAR(60) PRIMARY KEY,
+  access_token VARCHAR(60) PRIMARY KEY,
   token_type VARCHAR(10) NOT NULL,
   refresh_token VARCHAR(60),
   id_token VARCHAR(300),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP,
   expires_in INTEGER NOT NULL,
   scope VARCHAR(200),
   user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE

@@ -1,14 +1,16 @@
 package com.authorization_service.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -16,12 +18,13 @@ import java.util.UUID;
 public class User {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    private UUID id;
+    @Column(length = 36)
+    private String id;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updated_at = LocalDateTime.now();
 
@@ -37,12 +40,11 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    public User(String email, String phone, String password, String role) {
-        this.email = email;
-        this.phone = phone;
-        this.password = password;
-        this.role = role;
-    }
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user",
+               cascade = CascadeType.ALL)
+    private List<AccessToken> accessTokens = new ArrayList<>();
+
 
     @Override
     public String toString() {
@@ -55,6 +57,23 @@ public class User {
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 '}';
+    }
+
+    public List<AccessToken> getAccessTokens() {
+        return accessTokens;
+    }
+
+    public void setAccessTokens(List<AccessToken> accessTokens) {
+        this.accessTokens = accessTokens;
+
+        for(AccessToken token : accessTokens) {
+            token.setUser(this);
+        }
+    }
+
+    public void addAccessToken(AccessToken accessToken) {
+        accessTokens.add(accessToken);
+        accessToken.setUser(this);
     }
 }
 
