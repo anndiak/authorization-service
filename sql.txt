@@ -30,10 +30,9 @@ VALUES
 	('DA62ZY4WK6b2729AQK2W6yKFfOCJtKmn', '0TYf10quVb-OdGxN9fKuhfzEe6aLL_BTW_vmcv0EoefeMf5j3D9NJSAF1zKb4OCd', 'The-world`s-best-app', 'auth-tenant-domain.eu.auth0.com', 'http://localhost:3000/');
 
 CREATE TABLE assigned_applications_to_users (
-  id VARCHAR PRIMARY KEY,
-  client_id VARCHAR NOT NULL REFERENCES applications(client_id) ON DELETE CASCADE,
-  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at TIMESTAMP
+  client_id VARCHAR NOT NULL REFERENCES applications,
+  user_id VARCHAR NOT NULL REFERENCES users,
+  PRIMARY KEY (client_id, id)
 );
 
 INSERT INTO assigned_applications_to_users (client_id, user_id)

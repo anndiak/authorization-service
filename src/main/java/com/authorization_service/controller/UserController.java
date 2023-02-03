@@ -4,12 +4,10 @@ import com.authorization_service.Entity.User;
 import com.authorization_service.repository.interfaces.AccessTokenRepository;
 import com.authorization_service.repository.interfaces.UserRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -43,6 +41,47 @@ public class UserController {
         userRepository.save(savedUser2);
 
         return ResponseEntity.ok(savedUser1);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(@PathVariable String id) {
+
+
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.unprocessableEntity().build();
+        }
+
+        User user = new User();
+        user.setEmail("111-fhhfhf@gmail.com");
+        user.setPhone("+45576888111");
+        user.setPassword("12345-455");
+        user.setRole("Student");
+
+        user.setId(optionalUser.get().getId());
+        userRepository.save(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<User> delete(@PathVariable String id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.unprocessableEntity().build();
+        }
+
+        userRepository.delete(optionalUser.get());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getById(@PathVariable String id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        return optionalUser.map(ResponseEntity::ok).orElseGet(()
+                -> ResponseEntity.unprocessableEntity().build());
+
     }
 
     @GetMapping

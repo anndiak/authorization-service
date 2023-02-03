@@ -1,12 +1,16 @@
 package com.authorization_service.Entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "applications")
@@ -14,13 +18,15 @@ import java.time.LocalDateTime;
 public class Application {
 
     @Id
-    @Column(length = 36, updatable = false)
+    @GeneratedValue(generator="system-uuid")
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @Column(name = "client_id", updatable = false)
     private String client_id;
 
-    @Column(name = "client_secret", nullable = false)
+    @Column(name = "client_secret")
     private String client_secret;
 
-    @Column(name = "name", unique = true, nullable = false)
+    @Column(name = "name", unique = true)
     private String name;
 
     @Column(name = "homepage_url")
@@ -29,22 +35,28 @@ public class Application {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "redirect_uri", nullable = false)
+    @Column(name = "redirect_uri")
     private String redirect_uri;
 
     @Column(name = "scope")
     private String scope;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
-//    @ManyToOne(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-//    @JoinTable(name="assigned_applications_to_users",
-//            joinColumns={
-//                    @JoinColumn(name="client_id", referencedColumnName="client_id")},
-//            inverseJoinColumns={
-//                    @JoinColumn(name="user_id", referencedColumnName="id")})
-//    private User user;
+    @ManyToMany
+    @JoinTable(
+            name = "assigned_applications_to_users",
+            joinColumns = { @JoinColumn(name = "client_id") },
+            inverseJoinColumns = { @JoinColumn(name = "user_id") }
+    )
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<User> users = new HashSet<User>();
+
+    public void addUser(User user) {
+        this.users.add(user);
+        user.getApplications().add(this);
+    }
 
     @Override
     public String toString() {

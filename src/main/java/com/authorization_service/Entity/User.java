@@ -5,12 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -18,10 +21,12 @@ import java.util.List;
 public class User {
 
     @Id
-    @Column(length = 36)
+    @GeneratedValue(generator="system-uuid")
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @Column(name = "id")
     private String id;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime created_at = LocalDateTime.now();
 
     @UpdateTimestamp
@@ -45,6 +50,14 @@ public class User {
                cascade = CascadeType.ALL)
     private List<AccessToken> accessTokens = new ArrayList<>();
 
+    @JsonManagedReference
+    @ManyToMany(mappedBy = "users")
+    private Set<Application> applications = new HashSet<>();
+
+    public void addApplication(Application application) {
+        this.applications.add(application);
+        application.getUsers().add(this);
+    }
 
     @Override
     public String toString() {

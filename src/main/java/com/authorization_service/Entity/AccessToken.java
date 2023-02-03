@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class AccessToken {
 
     @Id
-    @Column(length = 60, updatable = false)
+    @Column(name = "access_token", length = 60, updatable = false)
     private String access_token;
 
     @Column(name = "token_type", nullable = false)
