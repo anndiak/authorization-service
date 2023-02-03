@@ -37,10 +37,18 @@ public class UserController {
         savedUser2.setPassword("12345");
         savedUser2.setRole("Student");
 
+        User savedUser3 = new User();
+        savedUser3.setId("2c964dbf8618611d0186186130990000");
+        savedUser3.setEmail("3333-fhhfhf@gmail.com");
+        savedUser3.setPhone("+45576888333");
+        savedUser3.setPassword("12345");
+        savedUser3.setRole("Student");
+
         userRepository.save(savedUser1);
         userRepository.save(savedUser2);
+        userRepository.save(savedUser3);
 
-        return ResponseEntity.ok(savedUser1);
+        return ResponseEntity.ok(savedUser3);
     }
 
     @PutMapping("/{id}")

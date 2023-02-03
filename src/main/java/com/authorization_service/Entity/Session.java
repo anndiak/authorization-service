@@ -38,7 +38,7 @@ public class Session {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
-    @Column(name = "expires_at", updatable = false)
+    @Column(name = "expires_at")
     private LocalDateTime expires_at = LocalDateTime.now();
 
     @Override

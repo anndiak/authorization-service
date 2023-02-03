@@ -1,6 +1,5 @@
 package com.authorization_service.controller;
 
-import com.authorization_service.Entity.AccessToken;
 import com.authorization_service.Entity.Application;
 import com.authorization_service.Entity.User;
 import com.authorization_service.repository.interfaces.AppRepository;
@@ -62,6 +61,8 @@ public class ApplicationController {
 
         User user1 = userRepository.getById("2c964dbf861727d00186172846960000");
         User user2 = userRepository.getById("2c964dbf861727d00186172846f20001");
+        User user3 = userRepository.getById("2c964dbf8618611d0186186130990000");
+
 
         Set<User> users = new HashSet<User>();
         users.add(user1);
@@ -73,6 +74,9 @@ public class ApplicationController {
         application1.setUsers(users);
         application2.setUsers(users);
 
+        application1.addUser(user3);
+
+        appRepository.save(application1);
         appRepository.save(application1);
         appRepository.save(application2);
 

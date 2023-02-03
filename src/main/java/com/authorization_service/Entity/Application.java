@@ -26,7 +26,7 @@ public class Application {
     @Column(name = "client_id", updatable = false)
     private String client_id;
 
-    @Column(name = "client_secret")
+    @Column(name = "client_secret", nullable = false)
     private String client_secret;
 
     @Column(name = "name", unique = true)
@@ -38,7 +38,7 @@ public class Application {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "redirect_uri")
+    @Column(name = "redirect_uri", nullable = false)
     private String redirect_uri;
 
     @Column(name = "scope")

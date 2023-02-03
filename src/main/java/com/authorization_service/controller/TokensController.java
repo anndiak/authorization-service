@@ -23,17 +23,17 @@ public class TokensController {
 
     @PostMapping
     public ResponseEntity<AccessToken> create() {
-        User user = userRepository.getById("2c964dbf861727d00186172846960000");
+        User user = userRepository.getById("2c964dbf86186f230186186fcb110000");
 
         AccessToken accessToken = new AccessToken();
-        accessToken.setAccess_token("111-fjfjjf");
+        accessToken.setAccess_token("222-fjfjjf");
         accessToken.setExpires_in(3600);
         accessToken.setToken_type("Bearer");
         accessToken.setUser(user);
 
 
         Optional<User> optionalUser = userRepository.findById(accessToken.getUser().getId());
-        if (!optionalUser.isPresent()) {
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
@@ -52,12 +52,12 @@ public class TokensController {
         new_at.setUser(accessTokenRepository.getById(id).getUser());
 
         Optional<User> optionalUser = userRepository.findById(new_at.getUser().getId());
-        if (!optionalUser.isPresent()) {
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
         Optional<AccessToken> optionalAccessToken = accessTokenRepository.findById(id);
-        if (!optionalAccessToken.isPresent()) {
+        if (optionalAccessToken.isEmpty()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
@@ -72,7 +72,7 @@ public class TokensController {
     @DeleteMapping("/{id}")
     public ResponseEntity<AccessToken> delete(@PathVariable String id) {
         Optional<AccessToken> optionalAccessToken = accessTokenRepository.findById(id);
-        if (!optionalAccessToken.isPresent()) {
+        if (optionalAccessToken.isEmpty()) {
             return ResponseEntity.unprocessableEntity().build();
         }
 
