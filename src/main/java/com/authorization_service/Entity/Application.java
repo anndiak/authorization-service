@@ -1,5 +1,6 @@
 package com.authorization_service.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +10,9 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -43,6 +46,11 @@ public class Application {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "application",
+            cascade = CascadeType.ALL)
+    private List<Session> sessions = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

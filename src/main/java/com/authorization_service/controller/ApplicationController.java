@@ -1,5 +1,6 @@
 package com.authorization_service.controller;
 
+import com.authorization_service.Entity.AccessToken;
 import com.authorization_service.Entity.Application;
 import com.authorization_service.Entity.User;
 import com.authorization_service.repository.interfaces.AppRepository;

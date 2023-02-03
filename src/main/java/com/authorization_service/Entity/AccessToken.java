@@ -34,7 +34,7 @@ public class AccessToken {
     private String scope;
 
     @Column(name = "created_at")
-    private LocalDateTime created_at;
+    private LocalDateTime created_at = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
@@ -53,7 +53,6 @@ public class AccessToken {
         this.id_token = id_token;
         this.expires_in = expires_in;
         this.scope = scope;
-        this.created_at = LocalDateTime.now();
     }
 
     @Override
