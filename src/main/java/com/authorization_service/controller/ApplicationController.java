@@ -59,9 +59,9 @@ public class ApplicationController {
     @PostMapping("/assign")
     public ResponseEntity<User> assignUserToApp() {
 
-        User user1 = userRepository.getById("2c964dbf861727d00186172846960000");
-        User user2 = userRepository.getById("2c964dbf861727d00186172846f20001");
-        User user3 = userRepository.getById("2c964dbf8618611d0186186130990000");
+        User user1 = userRepository.getById("2c964dbf8619d1bc018619d226750000");
+        User user2 = userRepository.getById("2c964dbf8619d1bc018619d226d20001");
+        User user3 = userRepository.getById("2c964dbf8619d1bc018619d226da0002");
 
 
         Set<User> users = new HashSet<User>();

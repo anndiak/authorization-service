@@ -23,7 +23,7 @@ public class TokensController {
 
     @PostMapping
     public ResponseEntity<AccessToken> create() {
-        User user = userRepository.getById("2c964dbf86186f230186186fcb110000");
+        User user = userRepository.getById("2c964dbf8619d1bc018619d226750000");
 
         AccessToken accessToken = new AccessToken();
         accessToken.setAccess_token("222-fjfjjf");

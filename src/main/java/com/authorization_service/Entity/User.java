@@ -10,10 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -43,7 +40,7 @@ public class User {
     private String password;
 
     @Column(name = "role", nullable = false)
-    private String role;
+    private UserRoles role;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "user",
