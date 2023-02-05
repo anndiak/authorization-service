@@ -1,0 +1,2 @@
+http://localhost:3000/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=https://spring.io/auth&state=111
+
