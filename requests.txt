@@ -1,2 +1,3 @@
 http://localhost:3000/oauth2/authorize?response_type=code&client_id=client&scope=openid&redirect_uri=https://spring.io/auth&state=111
 
+http://localhost:3000/oauth2/token?grant_type=authorization_code&client_id=1111-client_id&redirect_uri=https://spring.io/auth&code=andpWiGuSgzNJHQ2pjH9R9_e_kZalo4sSWhBCRxIKe1DLDQeWFmhk8crIHOdeBYt2ZvTtkVV4A3Ar_X2cxERqDIx06EDxjwEqg_q5PFCcCUSAh5ueNOX3SlVkhOnGFDN&client_secret=1111-client-secret
