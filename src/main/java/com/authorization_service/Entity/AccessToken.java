@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "access_tokens")
 @NoArgsConstructor @AllArgsConstructor @Getter @Setter
-public class AccessToken {
+public class AccessToken{
 
     @Id
     @Column(name = "access_token", length = 60, updatable = false)
@@ -35,7 +35,7 @@ public class AccessToken {
     @Column(name = "created_at")
     private LocalDateTime created_at = LocalDateTime.now();
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;

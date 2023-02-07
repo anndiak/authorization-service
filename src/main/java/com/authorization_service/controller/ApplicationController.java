@@ -32,7 +32,6 @@ public class ApplicationController {
         savedApp1.setClient_secret("1111-client-secret");
         savedApp1.setName("First App");
         savedApp1.setDescription("First App");
-        savedApp1.setRedirect_uri("http://localhost:3000/");
         savedApp1.setScope("read");
         savedApp1.setCreated_at(LocalDateTime.now());
 
@@ -41,7 +40,6 @@ public class ApplicationController {
         savedApp2.setClient_secret("2222-client-secret");
         savedApp2.setName("Second App");
         savedApp2.setDescription("Second App");
-        savedApp2.setRedirect_uri("http://localhost:3000/");
         savedApp1.setScope("read");
         savedApp1.setCreated_at(LocalDateTime.now());
 

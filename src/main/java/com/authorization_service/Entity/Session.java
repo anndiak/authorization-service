@@ -29,6 +29,11 @@ public class Session {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Application application;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private User user;
+
     @Column(name = "code_challenge")
     private String code_challenge;
 
@@ -38,7 +43,7 @@ public class Session {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at = LocalDateTime.now();
 
-    @Column(name = "expires_at")
+    @Column(name = "expires_at", nullable = false)
     private LocalDateTime expires_at = LocalDateTime.now();
 
     @Override

@@ -27,6 +27,7 @@ public class SpringSecurity {
                 .antMatchers("/").permitAll()
                 .and().formLogin()
                 .loginPage("/login")
+                .successForwardUrl("/success")
                 .permitAll();
         return http.build();
     }

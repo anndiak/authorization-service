@@ -44,6 +44,11 @@ public class User {
 
     @JsonManagedReference
     @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL)
+    private List<AccessToken> sessions = new ArrayList<>();
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL)
     private List<AccessToken> accessTokens = new ArrayList<>();
 

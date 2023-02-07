@@ -19,10 +19,26 @@ CREATE TABLE IF NOT EXISTS applications (
   created_at TIMESTAMP
 );
 
-CREATE TABLE assigned_applications_to_users (
-  client_id VARCHAR REFERENCES applications(client_id) ON DELETE CASCADE,
-  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  PRIMARY KEY (client_id, user_id)
+CREATE TABLE IF NOT EXISTS redirect_uris (
+  id VARCHAR PRIMARY KEY,
+  name VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS applications_redirect_uris (
+  client_id VARCHAR REFERENCES applications(client_id),
+  redirect_uri_id VARCHAR REFERENCES redirect_uris(id),
+  PRIMARY KEY (client_id, redirect_uri_id)
+);
+
+CREATE TABLE IF NOT EXISTS grant_types (
+  id VARCHAR PRIMARY KEY,
+  name VARCHAR
+);
+
+CREATE TABLE IF NOT EXISTS applications_grant_types (
+  client_id VARCHAR REFERENCES applications(client_id),
+  grant_type_id VARCHAR REFERENCES grant_types(id),
+  PRIMARY KEY (client_id, grant_type_id)
 );
 
 CREATE TABLE access_tokens (
@@ -33,18 +49,30 @@ CREATE TABLE access_tokens (
   created_at TIMESTAMP,
   expires_in INTEGER NOT NULL,
   scope VARCHAR(200),
-  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE
+  user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE temporary_sessions (
   state VARCHAR(36) PRIMARY KEY,
   code VARCHAR(50) NOT NULL,
+  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   code_challenge VARCHAR(40),
   code_challenge_method VARCHAR(10),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   client_id VARCHAR NOT NULL REFERENCES applications(client_id) ON DELETE CASCADE
 );
+
+
+
+
+CREATE TABLE assigned_applications_to_users (
+  client_id VARCHAR REFERENCES applications(client_id) ON DELETE CASCADE,
+  user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  PRIMARY KEY (client_id, user_id)
+);
+
+
 
 
 
