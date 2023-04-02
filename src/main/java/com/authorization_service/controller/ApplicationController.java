@@ -54,30 +54,30 @@ public class ApplicationController {
         return ResponseEntity.ok(appRepository.findAll());
     }
 
-    @PostMapping("/assign")
-    public ResponseEntity<User> assignUserToApp() {
-
-        User user1 = userRepository.getById("2c964dbf8619d1bc018619d226750000");
-        User user2 = userRepository.getById("2c964dbf8619d1bc018619d226d20001");
-        User user3 = userRepository.getById("2c964dbf8619d1bc018619d226da0002");
-
-
-        Set<User> users = new HashSet<User>();
-        users.add(user1);
-        users.add(user2);
-
-        Application application1 = appRepository.getById("1111-client_id");
-        Application application2 = appRepository.getById("2222-client_id");
-
-        application1.setUsers(users);
-        application2.setUsers(users);
-
-        application1.addUser(user3);
-
-        appRepository.save(application1);
-        appRepository.save(application1);
-        appRepository.save(application2);
-
-        return ResponseEntity.noContent().build();
-    }
+//    @PostMapping("/assign")
+//    public ResponseEntity<User> assignUserToApp() {
+//
+//        User user1 = userRepository.getById("2c964dbf8619d1bc018619d226750000");
+//        User user2 = userRepository.getById("2c964dbf8619d1bc018619d226d20001");
+//        User user3 = userRepository.getById("2c964dbf8619d1bc018619d226da0002");
+//
+//
+//        Set<User> users = new HashSet<User>();
+//        users.add(user1);
+//        users.add(user2);
+//
+//        Application application1 = appRepository.getById("1111-client_id");
+//        Application application2 = appRepository.getById("2222-client_id");
+//
+//        application1.setUsers(users);
+//        application2.setUsers(users);
+//
+//        application1.addUser(user3);
+//
+//        appRepository.save(application1);
+//        appRepository.save(application1);
+//        appRepository.save(application2);
+//
+//        return ResponseEntity.noContent().build();
+//    }
 }

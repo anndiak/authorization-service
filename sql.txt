@@ -63,6 +63,16 @@ CREATE TABLE temporary_sessions (
   client_id VARCHAR NOT NULL REFERENCES applications(client_id) ON DELETE CASCADE
 );
 
+CREATE TABLE roles (
+    role VARCHAR(60) PRIMARY KEY
+);
+
+INSERT INTO roles (role)
+    VALUES
+        ('ADMIN'),
+        ('TEACHER'),
+        ('STUDENT');
+
 
 
 

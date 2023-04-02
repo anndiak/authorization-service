@@ -1,6 +1,7 @@
 package com.authorization_service.Entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,8 +40,10 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role", nullable = false)
-    private UserRoles role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Role role;
 
     @JsonManagedReference
     @OneToMany(mappedBy = "user",
@@ -51,15 +54,6 @@ public class User {
     @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL)
     private List<AccessToken> accessTokens = new ArrayList<>();
-
-    @JsonManagedReference
-    @ManyToMany(mappedBy = "users")
-    private Set<Application> applications = new HashSet<>();
-
-    public void addApplication(Application application) {
-        this.applications.add(application);
-        application.getUsers().add(this);
-    }
 
     @Override
     public String toString() {
@@ -74,21 +68,21 @@ public class User {
                 '}';
     }
 
-    public List<AccessToken> getAccessTokens() {
-        return accessTokens;
-    }
-
-    public void setAccessTokens(List<AccessToken> accessTokens) {
-        this.accessTokens = accessTokens;
-
-        for(AccessToken token : accessTokens) {
-            token.setUser(this);
-        }
-    }
-
-    public void addAccessToken(AccessToken accessToken) {
-        accessTokens.add(accessToken);
-        accessToken.setUser(this);
-    }
+//    public List<AccessToken> getAccessTokens() {
+//        return accessTokens;
+//    }
+//
+//    public void setAccessTokens(List<AccessToken> accessTokens) {
+//        this.accessTokens = accessTokens;
+//
+//        for(AccessToken token : accessTokens) {
+//            token.setUser(this);
+//        }
+//    }
+//
+//    public void addAccessToken(AccessToken accessToken) {
+//        accessTokens.add(accessToken);
+//        accessToken.setUser(this);
+//    }
 }
 

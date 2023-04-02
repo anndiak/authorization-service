@@ -51,15 +51,6 @@ public class Application {
 
     @ManyToMany
     @JoinTable(
-            name = "assigned_applications_to_users",
-            joinColumns = { @JoinColumn(name = "client_id") },
-            inverseJoinColumns = { @JoinColumn(name = "user_id") }
-    )
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private Set<User> users = new HashSet<User>();
-
-    @ManyToMany
-    @JoinTable(
             name = "applications_redirect_uris",
             joinColumns = { @JoinColumn(name = "client_id") },
             inverseJoinColumns = { @JoinColumn(name = "redirect_uri_id") }
@@ -75,10 +66,6 @@ public class Application {
     )
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Set<GrantType> grantTypes = new HashSet<GrantType>();
-    public void addUser(User user) {
-        this.users.add(user);
-        user.getApplications().add(this);
-    }
 
     @Override
     public String toString() {

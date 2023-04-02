@@ -1,5 +1,6 @@
 package com.authorization_service.service;
 
+import com.authorization_service.Entity.Role;
 import com.authorization_service.Entity.User;
 import com.authorization_service.Entity.UserRoles;
 import com.authorization_service.repository.interfaces.UserRepository;
@@ -36,9 +37,9 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
     }
 
-    public Collection<? extends GrantedAuthority> getAuthorities(UserRoles userRoles) {
+    public Collection<? extends GrantedAuthority> getAuthorities(Role role) {
         SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority(userRoles.name());
+                new SimpleGrantedAuthority(role.getName());
         return Collections.singletonList(authority);
     }
 }

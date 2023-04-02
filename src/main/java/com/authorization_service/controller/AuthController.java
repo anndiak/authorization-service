@@ -79,7 +79,7 @@ public class AuthController {
         switch (grantType) {
             case "authorization_code":
                 Session session = sessionRepository.getByCode(body.get("code").toString());
-                if (session == null || !isApplicationGrantTypeValid(session.getApplication().getClient_id(),grantType)) {
+                if (session == null || isApplicationGrantTypeValid(session.getApplication().getClient_id(), grantType)) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such session or it is expired");
                 }
 
@@ -105,7 +105,7 @@ public class AuthController {
                 Application application_cc = appRepository.getByClient_id(client_id);
 
                 if (application_cc == null || !application_cc.getClient_secret().equals(client_secret) ||
-                        !isApplicationGrantTypeValid(client_id,grantType)) {
+                        isApplicationGrantTypeValid(client_id, grantType)) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid client");
                 }
 
@@ -119,7 +119,7 @@ public class AuthController {
                 Application application_ropc = appRepository.getByClient_id(client_id);
 
                 if (application_ropc == null || !application_ropc.getClient_secret().equals(client_secret) ||
-                        !isApplicationGrantTypeValid(body.get("client_id").toString(),grantType)) {
+                        isApplicationGrantTypeValid(body.get("client_id").toString(), grantType)) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid client");
                 }
 
@@ -199,10 +199,10 @@ public class AuthController {
         Set<GrantType> grantTypes = appRepository.getByClient_id(client_id).getGrantTypes();
         for(GrantType grant : grantTypes) {
             if (grant.getName().equals(grantType)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private boolean isUserCredentialsValid(Map<String,Object> body) {
