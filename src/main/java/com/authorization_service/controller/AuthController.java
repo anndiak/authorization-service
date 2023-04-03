@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     private Map<String, ?> requestParams;
+
+    private String errorCode, errorMessage, errorName;
 
     @Autowired
     private UserRepository userRepository;
@@ -53,7 +56,7 @@ public class AuthController {
     }
 
     @PostMapping("/success")
-    public String success_login() {
+    public String success_login(Model model) {
         if (isAuthorizationEndpointParametersValid() && checkIfAuthorizedUserCredentialsAreValid()) {
 
             Session session = createTemporarySession();
@@ -64,6 +67,10 @@ public class AuthController {
             return "redirect:" + redirect_uri +"?code=" + session.getCode() + "&state=" + session.getState();
         } else {
             requestParams.clear();
+
+            model.addAttribute("errorName", errorName);
+            model.addAttribute("errorCode", errorCode);
+            model.addAttribute("errorMessage", errorMessage);
             return "error";
         }
     }
@@ -81,13 +88,18 @@ public class AuthController {
         switch (grantType) {
             case "authorization_code":
                 Session session = sessionRepository.getByCode(body.get("code").toString());
-                if (session == null || isApplicationGrantTypeValid(session.getApplication().getClient_id(), grantType)) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such session or it is expired");
+
+                if (session == null) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such session or it is expired.");
+                }
+
+                if (!isGrantTypePresentInApplication(session.getApplication().getClient_id(), grantType)) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid grant type.");
                 }
 
                 String redirect_uri = (String) body.get("redirect_uri");
                 if (StringUtils.isBlank(redirect_uri) || !isRedirectUriPresentInApplication(session.getApplication(), redirect_uri)) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid redirect_uri");
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid redirect_uri.");
                 }
 
                 client_id = session.getApplication().getClient_id();
@@ -107,7 +119,7 @@ public class AuthController {
                 Application application_cc = appRepository.getByClient_id(client_id);
 
                 if (application_cc == null || !application_cc.getClient_secret().equals(client_secret) ||
-                        isApplicationGrantTypeValid(client_id, grantType)) {
+                        isGrantTypePresentInApplication(client_id, grantType)) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid client");
                 }
 
@@ -121,7 +133,7 @@ public class AuthController {
                 Application application_ropc = appRepository.getByClient_id(client_id);
 
                 if (application_ropc == null || !application_ropc.getClient_secret().equals(client_secret) ||
-                        isApplicationGrantTypeValid(body.get("client_id").toString(), grantType)) {
+                        isGrantTypePresentInApplication(body.get("client_id").toString(), grantType)) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid client");
                 }
 
@@ -152,19 +164,32 @@ public class AuthController {
                 (String)requestParams.get("client_id"),
                 (String)requestParams.get("redirect_uri"),
                 (String)requestParams.get("scope"))) {
-            return false; // Bad request
-        }
 
-        String responseType = (String)requestParams.get("response_type");
-
-        if (!responseType.equals("code")){
+            buildError("Bad Request", "400", "Fields such as 'response_type', 'client_id', 'redirect_uri', 'scope', 'state' must be specified.");
             return false;
         }
 
+        String responseType = (String)requestParams.get("response_type");
         String client_id = (String)requestParams.get("client_id");
         String redirect_uri = (String)requestParams.get("redirect_uri");
         Application application = appRepository.getByClient_id(client_id);
-        return application != null && isRedirectUriPresentInApplication(application, redirect_uri);
+
+        if (application == null) {
+            buildError("Bad Request", "400", "Invalid client.");
+            return false;
+        }
+
+        if (!responseType.equals("code")) {
+            buildError("Bad Request", "400", "Invalid grant type.");
+            return false;
+        }
+
+        if (!isRedirectUriPresentInApplication(application, redirect_uri)) {
+            buildError("Bad Request", "400", "Invalid Redirect uri.");
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isTokenEndpointBodyParametersValid(Map<String,Object> body) {
@@ -172,12 +197,18 @@ public class AuthController {
                 (String)body.get("grant_type"),
                 (String)body.get("client_id"),
                 (String)body.get("client_secret"))) {
+            buildError("Bad Request", "400", "Fields such as 'grant_type', 'client_id' and 'client_secret' must be present.");
             return false; // Bad request
         }
 
         String grantType = (String)body.get("grant_type");
-        return grantType.equals("authorization_code") || grantType.equals("client_credentials") ||
-                grantType.equals("password") || grantType.equals("refresh_token");
+        if (!(grantType.equals("authorization_code") || grantType.equals("client_credentials") ||
+                grantType.equals("password") || grantType.equals("refresh_token"))) {
+            buildError("Bad Request", "400", "Invalid grant type.");
+            return false;
+        }
+
+        return true;
     }
 
     private Session createTemporarySession() {
@@ -194,20 +225,23 @@ public class AuthController {
 
     private Set<Scope> getLoginScopes(){
         String[] scopes = requestParams.get("scope").toString().split(" ");
-
-        return Arrays.stream(scopes).map(s->scopeRepository.getScope(s)).collect(Collectors.toSet());
+        Set<Scope> loginScopes = Arrays.stream(scopes).map(s->scopeRepository.getScope(s)).collect(Collectors.toSet());
+        loginScopes.remove(null);
+        return loginScopes;
     }
 
     private boolean checkIfAuthorizedUserCredentialsAreValid(){
         Role userRole = userRepository.findByEmail(getAuthenticatedUserEmail()).getRole();
         Set<String> userScopes = userRole.getScopes().stream().map(Scope::getName).collect(Collectors.toSet());
         Set<String> loginProvidedScopes = getLoginScopes().stream().map(Scope::getName).collect(Collectors.toSet());
-        if (loginProvidedScopes.isEmpty()) {
-            return false;
+
+        if (getLoginScopes().isEmpty()) {
+            buildError("Bad Request", "400", "'scope' should be provided.");
         }
 
         for(String s : loginProvidedScopes) {
             if (!userScopes.contains(s)) {
+                buildError("Bad Request", "400", "Invalid scopes.");
                 return false;
             }
         }
@@ -219,14 +253,10 @@ public class AuthController {
         return ((UserDetails)principal).getUsername();
     }
 
-    private boolean isApplicationGrantTypeValid(String client_id, String grantType){
-        Set<GrantType> grantTypes = appRepository.getByClient_id(client_id).getGrantTypes();
-        for(GrantType grant : grantTypes) {
-            if (grant.getName().equals(grantType)) {
-                return false;
-            }
-        }
-        return true;
+    private boolean isGrantTypePresentInApplication(String clientId, String grantType) {
+        Application application = appRepository.getByClient_id(clientId);
+        Set<String> grantTypes = application.getGrantTypes().stream().map(GrantType::getName).collect(Collectors.toSet());
+        return grantTypes.contains(grantType);
     }
 
     private boolean isUserCredentialsValid(Map<String,Object> body) {
@@ -245,6 +275,12 @@ public class AuthController {
             }
         }
         return false;
+    }
+
+    private void buildError(String name, String code, String message) {
+        errorName = name;
+        errorCode = code;
+        errorMessage = message;
     }
 
 //    @GetMapping("/users")
