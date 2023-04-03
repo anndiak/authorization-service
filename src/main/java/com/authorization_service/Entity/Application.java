@@ -49,7 +49,7 @@ public class Application {
             cascade = CascadeType.ALL)
     private List<Session> sessions = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "applications_redirect_uris",
             joinColumns = { @JoinColumn(name = "client_id") },

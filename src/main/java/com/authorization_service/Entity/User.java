@@ -39,7 +39,9 @@ public class User {
     private String password;
 
     @ToString.Exclude
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
     @JoinColumn(name = "role_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Role role;
@@ -48,7 +50,7 @@ public class User {
     @JsonManagedReference
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
-    private List<AccessToken> sessions = new ArrayList<>();
+    private List<Session> sessions = new ArrayList<>();
 
     @ToString.Exclude
     @JsonManagedReference
