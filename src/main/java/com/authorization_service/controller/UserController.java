@@ -59,6 +59,15 @@ public class UserController {
         userRepository.save(savedUser2);
         userRepository.save(savedUser3);
 
+//        Role role4 = roleRepository.getAll().get(1);
+//        User savedUser4 = new User();
+//        savedUser4.setEmail("444-fhhfhf@gmail.com");
+//        savedUser4.setPhone("+45576888333");
+//        savedUser4.setPassword(bCryptPasswordEncoder.encode("12345"));
+//        savedUser4.setRole(role4);
+//
+//        userRepository.save(savedUser4);
+
         return ResponseEntity.ok(savedUser3);
     }
 

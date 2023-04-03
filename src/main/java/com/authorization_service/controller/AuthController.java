@@ -1,10 +1,7 @@
 package com.authorization_service.controller;
 
 import com.authorization_service.Entity.*;
-import com.authorization_service.repository.interfaces.AccessTokenRepository;
-import com.authorization_service.repository.interfaces.AppRepository;
-import com.authorization_service.repository.interfaces.SessionRepository;
-import com.authorization_service.repository.interfaces.UserRepository;
+import com.authorization_service.repository.interfaces.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +14,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class AuthController {
@@ -39,6 +36,9 @@ public class AuthController {
     private SessionRepository sessionRepository;
 
     @Autowired
+    private ScopeRepository scopeRepository;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @GetMapping("/oauth2/authorize")
@@ -54,11 +54,13 @@ public class AuthController {
 
     @PostMapping("/success")
     public String success_login() {
-        if (isAuthorizationEndpointParametersValid()) {
+        if (isAuthorizationEndpointParametersValid() && checkIfAuthorizedUserCredentialsAreValid()) {
+
             Session session = createTemporarySession();
             String redirect_uri = requestParams.get("redirect_uri").toString();
             sessionRepository.save(session);
             requestParams.clear();
+
             return "redirect:" + redirect_uri +"?code=" + session.getCode() + "&state=" + session.getState();
         } else {
             requestParams.clear();
@@ -148,7 +150,8 @@ public class AuthController {
                 (String)requestParams.get("state"),
                 (String)requestParams.get("response_type"),
                 (String)requestParams.get("client_id"),
-                (String)requestParams.get("redirect_uri"))) {
+                (String)requestParams.get("redirect_uri"),
+                (String)requestParams.get("scope"))) {
             return false; // Bad request
         }
 
@@ -161,10 +164,7 @@ public class AuthController {
         String client_id = (String)requestParams.get("client_id");
         String redirect_uri = (String)requestParams.get("redirect_uri");
         Application application = appRepository.getByClient_id(client_id);
-        if ( application == null || !isRedirectUriPresentInApplication(application, redirect_uri)) {
-            return false;
-        }
-        return true;
+        return application != null && isRedirectUriPresentInApplication(application, redirect_uri);
     }
 
     private boolean isTokenEndpointBodyParametersValid(Map<String,Object> body) {
@@ -187,7 +187,31 @@ public class AuthController {
         session.setApplication(appRepository.getByClient_id(requestParams.get("client_id").toString()));
         session.setUser(userRepository.findByEmail(getAuthenticatedUserEmail()));
         session.setExpires_at(session.getCreated_at().plusSeconds(300));
+        Set<Scope> scopeList = getLoginScopes();
+        session.setScopes(scopeList);
         return session;
+    }
+
+    private Set<Scope> getLoginScopes(){
+        String[] scopes = requestParams.get("scope").toString().split(" ");
+
+        return Arrays.stream(scopes).map(s->scopeRepository.getScope(s)).collect(Collectors.toSet());
+    }
+
+    private boolean checkIfAuthorizedUserCredentialsAreValid(){
+        Role userRole = userRepository.findByEmail(getAuthenticatedUserEmail()).getRole();
+        Set<String> userScopes = userRole.getScopes().stream().map(Scope::getName).collect(Collectors.toSet());
+        Set<String> loginProvidedScopes = getLoginScopes().stream().map(Scope::getName).collect(Collectors.toSet());
+        if (loginProvidedScopes.isEmpty()) {
+            return false;
+        }
+
+        for(String s : loginProvidedScopes) {
+            if (!userScopes.contains(s)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private String getAuthenticatedUserEmail(){

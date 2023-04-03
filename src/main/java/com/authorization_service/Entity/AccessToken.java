@@ -1,5 +1,6 @@
 package com.authorization_service.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +9,10 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "access_tokens")
@@ -29,9 +34,6 @@ public class AccessToken{
     @Column(name = "expires_in", nullable = false)
     private int expires_in;
 
-    @Column(name = "scope")
-    private String scope;
-
     @Column(name = "created_at")
     private LocalDateTime created_at = LocalDateTime.now();
 
@@ -40,18 +42,25 @@ public class AccessToken{
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
 
+    @ManyToMany
+    @JoinTable(
+            name = "access_tokens_to_scopes",
+            joinColumns = { @JoinColumn(name = "access_token") },
+            inverseJoinColumns = { @JoinColumn(name = "scope_id") }
+    )
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Scope> scopes = new HashSet<>();
+
     public AccessToken(String access_token,
                        String token_type,
                        String refresh_token,
                        String id_token,
-                       int expires_in,
-                       String scope) {
+                       int expires_in) {
         this.access_token = access_token;
         this.token_type = token_type;
         this.refresh_token = refresh_token;
         this.id_token = id_token;
         this.expires_in = expires_in;
-        this.scope = scope;
     }
 
     @Override
@@ -62,8 +71,9 @@ public class AccessToken{
                 ", refresh_token='" + refresh_token + '\'' +
                 ", id_token='" + id_token + '\'' +
                 ", expires_in=" + expires_in +
-                ", scope='" + scope + '\'' +
                 ", created_at=" + created_at +
+                ", user=" + user +
+                ", scopes=" + scopes +
                 '}';
     }
 }

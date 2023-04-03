@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -23,6 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
@@ -39,7 +41,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     public Collection<? extends GrantedAuthority> getAuthorities(Role role) {
         SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority(role.getName());
+                new SimpleGrantedAuthority(role.getRole());
         return Collections.singletonList(authority);
     }
 }

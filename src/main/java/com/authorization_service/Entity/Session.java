@@ -9,6 +9,8 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "temporary_sessions")
@@ -24,15 +26,24 @@ public class Session {
     @Column(name = "code", unique = true)
     private String code;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "client_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Application application;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false, cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", nullable = true)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private User user;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "assigned_scopes_to_temporary_sessions",
+            joinColumns = { @JoinColumn(name = "state") },
+            inverseJoinColumns = { @JoinColumn(name = "scope_id") }
+    )
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Set<Scope> scopes = new HashSet<>();
 
     @Column(name = "code_challenge")
     private String code_challenge;

@@ -2,20 +2,18 @@ package com.authorization_service.Entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
 @Table(name = "users")
-@NoArgsConstructor @AllArgsConstructor @Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Getter @Setter @ToString
 public class User {
 
     @Id
@@ -40,49 +38,22 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role")
+    @JoinColumn(name = "role_id")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Role role;
 
+    @ToString.Exclude
     @JsonManagedReference
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL)
     private List<AccessToken> sessions = new ArrayList<>();
 
+    @ToString.Exclude
     @JsonManagedReference
     @OneToMany(mappedBy = "user",
                cascade = CascadeType.ALL)
     private List<AccessToken> accessTokens = new ArrayList<>();
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", created_at='" + created_at + '\'' +
-                ", updated_at='" + updated_at + '\'' +
-                ", email='" + email + '\'' +
-                ", phone='" + phone + '\'' +
-                ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
-                '}';
-    }
-
-//    public List<AccessToken> getAccessTokens() {
-//        return accessTokens;
-//    }
-//
-//    public void setAccessTokens(List<AccessToken> accessTokens) {
-//        this.accessTokens = accessTokens;
-//
-//        for(AccessToken token : accessTokens) {
-//            token.setUser(this);
-//        }
-//    }
-//
-//    public void addAccessToken(AccessToken accessToken) {
-//        accessTokens.add(accessToken);
-//        accessToken.setUser(this);
-//    }
 }
 
